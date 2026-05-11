@@ -1,10 +1,12 @@
 name: E2E Tests
 
 on:
+  repository_dispatch:
+    types: [new-build]
   workflow_dispatch:
     inputs:
       apk_url:
-        description: 'URL do APK para baixar (artifact do app repo)'
+        description: 'URL do APK (GitHub Release)'
         required: true
         type: string
 
@@ -34,42 +36,56 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Appium and UIAutomator2 driver
+      - name: Install Appium UIAutomator2 driver
+        run: npx appium driver install uiautomator2
+
+      - name: Resolve APK URL
         run: |
-          npx appium driver install uiautomator2
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "APK_DOWNLOAD_URL=${{ github.event.client_payload.apk_url }}" >> $GITHUB_ENV
+            echo "BUILD_NUMBER=${{ github.event.client_payload.build_number }}" >> $GITHUB_ENV
+          else
+            echo "APK_DOWNLOAD_URL=${{ github.event.inputs.apk_url }}" >> $GITHUB_ENV
+            echo "BUILD_NUMBER=manual" >> $GITHUB_ENV
+          fi
 
       - name: Download APK
         run: |
           mkdir -p apk
-          curl -L "${{ github.event.inputs.apk_url }}" -o apk/app-debug.apk
+          curl -L \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/octet-stream" \
+            "$APK_DOWNLOAD_URL" \
+            -o apk/app-release.apk
 
-      - name: Start Android Emulator
+      - name: Enable KVM for emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run E2E tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
-          profile: Nexus 6
+          profile: pixel_4
           script: |
             adb wait-for-device
-            echo "Emulator started"
-
-      - name: Start Appium server
-        run: |
-          npx appium &
-          sleep 5
-        env:
-          APPIUM_HOME: ${{ github.workspace }}/.appium
-
-      - name: Run E2E tests
-        run: npm test
+            adb install -r apk/app-release.apk
+            npx appium --port 4723 &
+            sleep 8
+            npm test
         env:
           DEVICE_NAME: emulator-5554
           ANDROID_VERSION: '14'
-          APK_PATH: ./apk/app-debug.apk
+          APK_PATH: ./apk/app-release.apk
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-build-${{ env.BUILD_NUMBER }}
           path: reports/
+          retention-days: 30
