@@ -1,0 +1,75 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: 'URL do APK para baixar (artifact do app repo)'
+        required: true
+        type: string
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout test repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Appium and UIAutomator2 driver
+        run: |
+          npx appium driver install uiautomator2
+
+      - name: Download APK
+        run: |
+          mkdir -p apk
+          curl -L "${{ github.event.inputs.apk_url }}" -o apk/app-debug.apk
+
+      - name: Start Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            adb wait-for-device
+            echo "Emulator started"
+
+      - name: Start Appium server
+        run: |
+          npx appium &
+          sleep 5
+        env:
+          APPIUM_HOME: ${{ github.workspace }}/.appium
+
+      - name: Run E2E tests
+        run: npm test
+        env:
+          DEVICE_NAME: emulator-5554
+          ANDROID_VERSION: '14'
+          APK_PATH: ./apk/app-debug.apk
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/

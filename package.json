@@ -1,0 +1,20 @@
+{
+  "name": "meu-consultorio-tests",
+  "version": "1.0.0",
+  "description": "Appium e2e tests for Meu Consultório app",
+  "type": "module",
+  "scripts": {
+    "test": "wdio run wdio.conf.js",
+    "test:agenda": "wdio run wdio.conf.js --spec test/specs/agenda.spec.js",
+    "test:pacientes": "wdio run wdio.conf.js --spec test/specs/pacientes.spec.js",
+    "appium": "appium"
+  },
+  "devDependencies": {
+    "@wdio/cli": "^9.0.0",
+    "@wdio/local-runner": "^9.0.0",
+    "@wdio/mocha-framework": "^9.0.0",
+    "@wdio/spec-reporter": "^9.0.0",
+    "appium": "^2.0.0",
+    "appium-uiautomator2-driver": "^3.0.0"
+  }
+}
