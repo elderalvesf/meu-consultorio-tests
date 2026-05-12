@@ -18,6 +18,7 @@ export const config = {
       'appium:app': process.env.APK_PATH || './apk/app-debug.apk',
       'appium:autoGrantPermissions': true,
       'appium:newCommandTimeout': 300,
+      'appium:noReset': true,
     },
   ],
 
@@ -34,16 +35,43 @@ export const config = {
   },
 
   before: async function () {
+    const email = process.env.TEST_EMAIL;
+    const password = process.env.TEST_PASSWORD;
+
+    if (!email || !password) {
+      console.error('[before] TEST_EMAIL or TEST_PASSWORD not set — skipping login');
+      return;
+    }
+
     try {
-      await $('~login_screen').waitForDisplayed({ timeout: 15000 });
-      await $('~campo_email').setValue(process.env.TEST_EMAIL || '');
-      await driver.hideKeyboard();
-      await $('~campo_senha').setValue(process.env.TEST_PASSWORD || '');
-      await driver.hideKeyboard();
+      const isLoginVisible = await $('~login_screen')
+        .waitForDisplayed({ timeout: 15000 })
+        .then(() => true)
+        .catch(() => false);
+
+      if (!isLoginVisible) {
+        console.log('[before] Already authenticated');
+        return;
+      }
+
+      console.log('[before] Login screen found, logging in as', email);
+
+      const emailField = await $('~campo_email');
+      await emailField.waitForDisplayed({ timeout: 5000 });
+      await emailField.click();
+      await emailField.setValue(email);
+
+      const passField = await $('~campo_senha');
+      await passField.click();
+      await passField.setValue(password);
+
+      await driver.hideKeyboard().catch(() => {});
+
       await $('~btn_entrar').click();
       await $('~home_screen').waitForDisplayed({ timeout: 30000 });
-    } catch {
-      // Already authenticated or login screen not present
+      console.log('[before] Login successful');
+    } catch (e) {
+      console.error('[before] Login failed:', e.message);
     }
   },
 
