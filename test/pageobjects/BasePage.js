@@ -12,8 +12,8 @@ export default class BasePage {
 
   async typeText(selector, text) {
     const el = await this.waitForElement(selector);
-    await el.clearValue();
-    await el.setValue(text);
+    await el.click();
+    await driver.execute('mobile: type', { text });
   }
 
   async getText(selector) {
