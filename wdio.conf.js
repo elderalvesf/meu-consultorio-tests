@@ -65,10 +65,18 @@ export const config = {
       await passField.click();
       await driver.execute('mobile: type', { text: password });
 
+      // Press Enter to dismiss IME before tapping the login button
+      await driver.execute('mobile: pressKey', { keycode: 66 }).catch(() => {});
       await driver.hideKeyboard().catch(() => {});
 
       await $('~btn_entrar').click();
       await $('~home_screen').waitForDisplayed({ timeout: 30000 });
+
+      // Wait for the bottom navigation bar to be ready before handing off to specs.
+      // After Firebase auth the nav bar may take an extra moment because isTopLevel
+      // flips once NavHost sets the initial back-stack entry, and any lingering IME
+      // animation must finish before the bar is considered "displayed".
+      await $('~nav_home').waitForDisplayed({ timeout: 10000 });
       console.log('[before] Login successful');
     } catch (e) {
       console.error('[before] Login failed:', e.message);
