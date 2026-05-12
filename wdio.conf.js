@@ -59,11 +59,11 @@ export const config = {
       const emailField = await $('~campo_email');
       await emailField.waitForDisplayed({ timeout: 5000 });
       await emailField.click();
-      await emailField.setValue(email);
+      await driver.execute('mobile: type', { text: email });
 
       const passField = await $('~campo_senha');
       await passField.click();
-      await passField.setValue(password);
+      await driver.execute('mobile: type', { text: password });
 
       await driver.hideKeyboard().catch(() => {});
 
