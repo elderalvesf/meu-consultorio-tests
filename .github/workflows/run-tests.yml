@@ -37,7 +37,7 @@ jobs:
         run: npm install
 
       - name: Install Appium UIAutomator2 driver
-        run: npx appium driver install uiautomator2 || npx appium driver update uiautomator2
+        run: npx appium driver install uiautomator2 || npx appium driver update uiautomator2 --unsafe
 
       - name: Resolve APK URL
         run: |
