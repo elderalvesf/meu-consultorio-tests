@@ -81,6 +81,8 @@ jobs:
           DEVICE_NAME: emulator-5554
           ANDROID_VERSION: '14'
           APK_PATH: ./apk/app-release.apk
+          TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
 
       - name: Upload test results
         if: always()

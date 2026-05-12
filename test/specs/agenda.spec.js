@@ -1,9 +1,13 @@
 import AgendaPage from '../pageobjects/AgendaPage.js';
+import NavigationHelper from '../pageobjects/NavigationHelper.js';
 
 describe('Agenda', () => {
-  it('deve exibir a tela de agenda ao abrir o app', async () => {
-    const displayed = await AgendaPage.isDisplayed();
-    expect(displayed).toBe(true);
+  beforeEach(async () => {
+    await NavigationHelper.goToAgenda();
+  });
+
+  it('deve exibir a tela de agenda', async () => {
+    expect(await AgendaPage.isDisplayed()).toBe(true);
   });
 
   it('deve exibir a timeline da agenda', async () => {
@@ -18,11 +22,9 @@ describe('Agenda', () => {
 
   it('deve expandir o FAB e exibir opções de novo agendamento e tratamento', async () => {
     await AgendaPage.expandFab();
-    const fabAgendamento = await AgendaPage.fabNovoAgendamento;
-    const fabTratamento = await AgendaPage.fabNovoTratamento;
-    expect(await fabAgendamento.isDisplayed()).toBe(true);
-    expect(await fabTratamento.isDisplayed()).toBe(true);
-    await AgendaPage.expandFab(); // fecha o FAB
+    expect(await (await AgendaPage.fabNovoAgendamento).isDisplayed()).toBe(true);
+    expect(await (await AgendaPage.fabNovoTratamento).isDisplayed()).toBe(true);
+    await AgendaPage.expandFab();
   });
 
   it('deve abrir formulário de novo agendamento ao tocar no FAB', async () => {

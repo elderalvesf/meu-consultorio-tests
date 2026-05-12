@@ -1,9 +1,13 @@
 import HomePage from '../pageobjects/HomePage.js';
+import NavigationHelper from '../pageobjects/NavigationHelper.js';
 
 describe('Home', () => {
+  beforeEach(async () => {
+    await NavigationHelper.goToHome();
+  });
+
   it('deve exibir a tela home após login', async () => {
-    const displayed = await HomePage.isDisplayed();
-    expect(displayed).toBe(true);
+    expect(await HomePage.isDisplayed()).toBe(true);
   });
 
   it('deve exibir o card de estatísticas de pacientes', async () => {
@@ -20,13 +24,11 @@ describe('Home', () => {
     await HomePage.tapCardPacientes();
     const pacientesScreen = await $('~pacientes_screen');
     expect(await pacientesScreen.isDisplayed()).toBe(true);
-    await driver.back();
   });
 
   it('deve navegar para agenda ao tocar no card de consultas', async () => {
     await HomePage.tapCardConsultasHoje();
     const agendaScreen = await $('~agenda_screen');
     expect(await agendaScreen.isDisplayed()).toBe(true);
-    await driver.back();
   });
 });

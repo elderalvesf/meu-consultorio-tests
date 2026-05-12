@@ -1,9 +1,10 @@
 import AgendaPage from '../pageobjects/AgendaPage.js';
 import AppointmentFormPage from '../pageobjects/AppointmentFormPage.js';
+import NavigationHelper from '../pageobjects/NavigationHelper.js';
 
 describe('Formulário de Agendamento', () => {
   beforeEach(async () => {
-    // Navega para o formulário via FAB da agenda
+    await NavigationHelper.goToAgenda();
     await AgendaPage.tapNovoAgendamento();
   });
 

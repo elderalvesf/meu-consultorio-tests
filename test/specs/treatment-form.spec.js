@@ -1,8 +1,10 @@
 import AgendaPage from '../pageobjects/AgendaPage.js';
 import TreatmentFormPage from '../pageobjects/TreatmentFormPage.js';
+import NavigationHelper from '../pageobjects/NavigationHelper.js';
 
 describe('Formulário de Tratamento', () => {
   beforeEach(async () => {
+    await NavigationHelper.goToAgenda();
     await AgendaPage.tapNovoTratamento();
   });
 

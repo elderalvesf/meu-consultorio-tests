@@ -1,9 +1,13 @@
 import PacientesPage from '../pageobjects/PacientesPage.js';
+import NavigationHelper from '../pageobjects/NavigationHelper.js';
 
 describe('Pacientes', () => {
+  beforeEach(async () => {
+    await NavigationHelper.goToPatients();
+  });
+
   it('deve exibir a tela de pacientes', async () => {
-    const displayed = await PacientesPage.isDisplayed();
-    expect(displayed).toBe(true);
+    expect(await PacientesPage.isDisplayed()).toBe(true);
   });
 
   it('deve exibir o botão de novo paciente', async () => {
@@ -20,9 +24,7 @@ describe('Pacientes', () => {
 
   it('deve cadastrar um novo paciente', async () => {
     const countAntes = await PacientesPage.getPacienteCount();
-
     await PacientesPage.cadastrarPaciente('Paciente Teste', '(11) 99999-0000');
-
     const countDepois = await PacientesPage.getPacienteCount();
     expect(countDepois).toBeGreaterThan(countAntes);
   });

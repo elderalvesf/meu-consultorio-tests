@@ -1,9 +1,9 @@
-import PacientesPage from '../pageobjects/PacientesPage.js';
+import NavigationHelper from '../pageobjects/NavigationHelper.js';
 import PatientDetailPage from '../pageobjects/PatientDetailPage.js';
 
 describe('Detalhe do Paciente', () => {
   beforeEach(async () => {
-    // Abre o primeiro paciente da lista
+    await NavigationHelper.goToPatients();
     const cards = await $$('~card_paciente');
     if (cards.length > 0) {
       await cards[0].click();

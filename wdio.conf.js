@@ -33,6 +33,20 @@ export const config = {
     timeout: 60000,
   },
 
+  before: async function () {
+    try {
+      await $('~login_screen').waitForDisplayed({ timeout: 15000 });
+      await $('~campo_email').setValue(process.env.TEST_EMAIL || '');
+      await driver.hideKeyboard();
+      await $('~campo_senha').setValue(process.env.TEST_PASSWORD || '');
+      await driver.hideKeyboard();
+      await $('~btn_entrar').click();
+      await $('~home_screen').waitForDisplayed({ timeout: 30000 });
+    } catch {
+      // Already authenticated or login screen not present
+    }
+  },
+
   reporters: [
     'spec',
     [
