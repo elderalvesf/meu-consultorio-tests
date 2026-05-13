@@ -1,5 +1,8 @@
 class NavigationHelper {
   async waitForApp() {
+    // Dismiss keyboard if open — prevents nav bar items from being hidden
+    try { await driver.hideKeyboard(); } catch {}
+
     // If on a non-top-level screen (no bottom nav), press back to return
     for (let i = 0; i < 4; i++) {
       try {
