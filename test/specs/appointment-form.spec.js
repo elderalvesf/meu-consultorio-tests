@@ -38,6 +38,7 @@ describe('Formulário de Agendamento', () => {
 
   it('deve exibir o switch de Google Calendar', async () => {
     const switchGcal = await AppointmentFormPage.switchGoogleCalendar;
+    await switchGcal.scrollIntoView();
     expect(await switchGcal.isDisplayed()).toBe(true);
   });
 });
