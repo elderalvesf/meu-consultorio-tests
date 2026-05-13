@@ -66,7 +66,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run E2E tests
-        timeout-minutes: 20
+        timeout-minutes: 25
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -84,8 +84,6 @@ jobs:
             TEST_EXIT=$?
             kill $APPIUM_PID 2>/dev/null || true
             wait $APPIUM_PID 2>/dev/null || true
-            adb -s emulator-5554 emu kill 2>/dev/null || true
-            sleep 3
             exit $TEST_EXIT
         env:
           DEVICE_NAME: emulator-5554
