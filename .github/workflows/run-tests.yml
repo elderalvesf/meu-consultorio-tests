@@ -78,8 +78,13 @@ jobs:
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 2; done'
             adb install -r apk/app-release.apk
             npx appium --port 4723 &
+            APPIUM_PID=$!
             sleep 8
             npm test
+            TEST_EXIT=$?
+            kill $APPIUM_PID 2>/dev/null || true
+            wait $APPIUM_PID 2>/dev/null || true
+            exit $TEST_EXIT
         env:
           DEVICE_NAME: emulator-5554
           ANDROID_VERSION: '14'
