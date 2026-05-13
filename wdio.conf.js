@@ -49,37 +49,39 @@ export const config = {
         .then(() => true)
         .catch(() => false);
 
-      if (!isLoginVisible) {
-        console.log('[before] Already authenticated');
-        return;
+      if (isLoginVisible) {
+        console.log('[before] Login screen found, logging in as', email);
+
+        const emailField = await $('~campo_email');
+        await emailField.waitForDisplayed({ timeout: 5000 });
+        await emailField.click();
+        await driver.execute('mobile: type', { text: email });
+
+        const passField = await $('~campo_senha');
+        await passField.click();
+        await driver.execute('mobile: type', { text: password });
+
+        await driver.execute('mobile: pressKey', { keycode: 66 }).catch(() => {});
+        await driver.hideKeyboard().catch(() => {});
+
+        await $('~btn_entrar').click();
+        await $('~home_screen').waitForDisplayed({ timeout: 30000 });
+      } else {
+        console.log('[before] Already authenticated, waiting for app to be ready');
       }
 
-      console.log('[before] Login screen found, logging in as', email);
+      // Always wait for bottom nav to be ready before handing off to specs
+      await driver.waitUntil(async () => {
+        try {
+          return await (await $('~nav_home')).isDisplayed();
+        } catch {
+          return false;
+        }
+      }, { timeout: 30000, interval: 1000 });
 
-      const emailField = await $('~campo_email');
-      await emailField.waitForDisplayed({ timeout: 5000 });
-      await emailField.click();
-      await driver.execute('mobile: type', { text: email });
-
-      const passField = await $('~campo_senha');
-      await passField.click();
-      await driver.execute('mobile: type', { text: password });
-
-      // Press Enter to dismiss IME before tapping the login button
-      await driver.execute('mobile: pressKey', { keycode: 66 }).catch(() => {});
-      await driver.hideKeyboard().catch(() => {});
-
-      await $('~btn_entrar').click();
-      await $('~home_screen').waitForDisplayed({ timeout: 30000 });
-
-      // Wait for the bottom navigation bar to be ready before handing off to specs.
-      // After Firebase auth the nav bar may take an extra moment because isTopLevel
-      // flips once NavHost sets the initial back-stack entry, and any lingering IME
-      // animation must finish before the bar is considered "displayed".
-      await $('~nav_home').waitForDisplayed({ timeout: 10000 });
-      console.log('[before] Login successful');
+      console.log('[before] App ready');
     } catch (e) {
-      console.error('[before] Login failed:', e.message);
+      console.error('[before] Setup failed:', e.message);
     }
   },
 
