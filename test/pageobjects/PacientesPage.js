@@ -17,7 +17,6 @@ class PacientesPage extends BasePage {
     return $$('~card_paciente');
   }
 
-  // Formulário de cadastro
   get campNome() {
     return $('~campo_nome_paciente');
   }
@@ -34,12 +33,36 @@ class PacientesPage extends BasePage {
     return super.isDisplayed('~pacientes_screen');
   }
 
+  async isDetailDisplayed() {
+    return super.isDisplayed('~paciente_detalhe_screen');
+  }
+
   async tapNovoPaciente() {
     await this.tap('~fab_novo_paciente');
   }
 
   async buscarPaciente(nome) {
     await this.typeText('~campo_busca_paciente', nome);
+  }
+
+  async pesquisar(nome) {
+    await this.buscarPaciente(nome);
+  }
+
+  async abrirPrimeiroPaciente() {
+    const cards = await this.listaPacientes;
+    if (cards.length === 0) throw new Error('No patient cards found');
+    await cards[0].click();
+    await driver.waitUntil(async () => {
+      try { return await (await $('~paciente_detalhe_screen')).isDisplayed(); } catch { return false; }
+    }, { timeout: 15000, interval: 500 });
+  }
+
+  async voltarDaDetalhe() {
+    await driver.back();
+    await driver.waitUntil(async () => {
+      try { return await (await $('~pacientes_screen')).isDisplayed(); } catch { return false; }
+    }, { timeout: 15000, interval: 500 });
   }
 
   async cadastrarPaciente(nome, telefone) {
