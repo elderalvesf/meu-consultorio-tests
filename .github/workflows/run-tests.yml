@@ -66,6 +66,8 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run E2E tests
+        id: e2e
+        continue-on-error: true
         timeout-minutes: 25
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -86,6 +88,7 @@ jobs:
             wait $APPIUM_PID 2>/dev/null || true
             pkill -9 -f emulator 2>/dev/null || true
             sleep 2
+            echo $TEST_EXIT > /tmp/test_exit_code
             exit $TEST_EXIT
         env:
           DEVICE_NAME: emulator-5554
@@ -93,6 +96,12 @@ jobs:
           APK_PATH: ./apk/app-release.apk
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+
+      - name: Check test results
+        run: |
+          EXIT_CODE=$(cat /tmp/test_exit_code 2>/dev/null || echo "1")
+          echo "Test exit code: $EXIT_CODE"
+          exit $EXIT_CODE
 
       - name: Upload test results
         if: always()
