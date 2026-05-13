@@ -48,6 +48,7 @@ class PacientesPage extends BasePage {
     await this.typeText('~campo_telefone_paciente', telefone);
     await this.hideKeyboard();
     await this.tap('~btn_salvar_paciente');
+    await $('~pacientes_screen').waitForDisplayed({ timeout: 10000 });
   }
 
   async getPacienteCount() {
