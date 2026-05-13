@@ -84,6 +84,8 @@ jobs:
             TEST_EXIT=$?
             kill $APPIUM_PID 2>/dev/null || true
             wait $APPIUM_PID 2>/dev/null || true
+            pkill -9 -f emulator 2>/dev/null || true
+            sleep 2
             exit $TEST_EXIT
         env:
           DEVICE_NAME: emulator-5554
