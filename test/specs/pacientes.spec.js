@@ -14,6 +14,10 @@ describe('Pacientes', () => {
     const uniqueName = `Paciente Teste ${Date.now()}`;
     const countAntes = await PacientesPage.getPacienteCount();
     await PacientesPage.cadastrarPaciente(uniqueName, '(11) 99999-0000');
+    await driver.waitUntil(async () => {
+      const count = await PacientesPage.getPacienteCount();
+      return count > countAntes;
+    }, { timeout: 15000, interval: 1000 });
     const countDepois = await PacientesPage.getPacienteCount();
     expect(countDepois).toBeGreaterThan(countAntes);
   });
