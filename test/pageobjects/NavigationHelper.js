@@ -19,11 +19,27 @@ class NavigationHelper {
 
   async goToHome() {
     await this.waitForApp();
-    const el = await $('~nav_home');
-    await el.click();
+
+    // Already on home?
+    try {
+      if (await (await $('~card_stat_pacientes')).isDisplayed()) return;
+    } catch {}
+
+    // Try nav click first (5s fast path)
+    try {
+      const el = await $('~nav_home');
+      await el.click();
+      await driver.waitUntil(async () => {
+        try { return await (await $('~card_stat_pacientes')).isDisplayed(); } catch { return false; }
+      }, { timeout: 5000, interval: 500 });
+      return;
+    } catch {}
+
+    // Fallback: back button (works when patients was pushed on top of home)
+    await driver.back();
     await driver.waitUntil(async () => {
       try { return await (await $('~card_stat_pacientes')).isDisplayed(); } catch { return false; }
-    }, { timeout: 30000, interval: 500 });
+    }, { timeout: 20000, interval: 500 });
   }
 
   async goToAgenda() {
