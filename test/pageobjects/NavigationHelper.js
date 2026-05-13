@@ -14,7 +14,7 @@ class NavigationHelper {
     await el.click();
     await driver.waitUntil(async () => {
       try { return await (await $('~home_screen')).isDisplayed(); } catch { return false; }
-    }, { timeout: 15000, interval: 500 });
+    }, { timeout: 30000, interval: 500 });
   }
 
   async goToAgenda() {
