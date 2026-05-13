@@ -82,14 +82,11 @@ jobs:
             npx appium --port 4723 &
             APPIUM_PID=$!
             sleep 8
-            npm test
-            TEST_EXIT=$?
+            npm test || true
             kill $APPIUM_PID 2>/dev/null || true
             wait $APPIUM_PID 2>/dev/null || true
             pkill -9 -f emulator 2>/dev/null || true
             sleep 2
-            echo $TEST_EXIT > /tmp/test_exit_code
-            exit $TEST_EXIT
         env:
           DEVICE_NAME: emulator-5554
           ANDROID_VERSION: '14'
@@ -99,9 +96,19 @@ jobs:
 
       - name: Check test results
         run: |
-          EXIT_CODE=$(cat /tmp/test_exit_code 2>/dev/null || echo "1")
-          echo "Test exit code: $EXIT_CODE"
-          exit $EXIT_CODE
+          if ! compgen -G "reports/*.xml" > /dev/null 2>&1; then
+            echo "No JUnit XML reports found — tests did not run"
+            exit 1
+          fi
+          FAIL_COUNT=$(grep -rh 'failures=' reports/*.xml | grep -o 'failures="[0-9][0-9]*"' | awk -F'"' '{sum+=$2} END{print sum+0}')
+          ERROR_COUNT=$(grep -rh 'errors=' reports/*.xml | grep -o 'errors="[0-9][0-9]*"' | awk -F'"' '{sum+=$2} END{print sum+0}')
+          TEST_COUNT=$(grep -rh 'tests=' reports/*.xml | grep -o 'tests="[0-9][0-9]*"' | awk -F'"' '{sum+=$2} END{print sum+0}')
+          echo "Tests: $TEST_COUNT | Failures: $FAIL_COUNT | Errors: $ERROR_COUNT"
+          if [ "$FAIL_COUNT" -gt 0 ] || [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "Tests FAILED"
+            exit 1
+          fi
+          echo "All tests PASSED"
 
       - name: Upload test results
         if: always()
