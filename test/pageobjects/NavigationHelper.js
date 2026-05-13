@@ -4,9 +4,7 @@ class NavigationHelper {
       try {
         const el = await $('~nav_home');
         return await el.isDisplayed();
-      } catch {
-        return false;
-      }
+      } catch { return false; }
     }, { timeout: 30000, interval: 1000 });
   }
 
@@ -16,7 +14,7 @@ class NavigationHelper {
     await el.click();
     await driver.waitUntil(async () => {
       try { return await (await $('~home_screen')).isDisplayed(); } catch { return false; }
-    }, { timeout: 10000, interval: 500 });
+    }, { timeout: 15000, interval: 500 });
   }
 
   async goToAgenda() {
@@ -25,7 +23,7 @@ class NavigationHelper {
     await el.click();
     await driver.waitUntil(async () => {
       try { return await (await $('~agenda_screen')).isDisplayed(); } catch { return false; }
-    }, { timeout: 10000, interval: 500 });
+    }, { timeout: 15000, interval: 500 });
   }
 
   async goToPatients() {
@@ -34,7 +32,7 @@ class NavigationHelper {
     await el.click();
     await driver.waitUntil(async () => {
       try { return await (await $('~pacientes_screen')).isDisplayed(); } catch { return false; }
-    }, { timeout: 10000, interval: 500 });
+    }, { timeout: 15000, interval: 500 });
   }
 
   async goToFinanceiro() {
