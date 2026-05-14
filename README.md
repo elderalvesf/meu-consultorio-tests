@@ -1,5 +1,7 @@
 # meu-consultorio-tests
 
+[![E2E Tests](https://github.com/elderalvesf/meu-consultorio-tests/actions/workflows/run-tests.yml/badge.svg)](https://github.com/elderalvesf/meu-consultorio-tests/actions/workflows/run-tests.yml)
+
 Suíte de testes E2E mobile para o aplicativo **Meu Consultório** (Android), construída com Appium 2 + WebdriverIO 9 seguindo o padrão Page Object Model.
 
 > Repositório de testes separado do app principal — integrado via `repository_dispatch` para execução automática a cada novo build.
